@@ -18,11 +18,11 @@ import java.awt.Graphics;
  * Uses static declarations for display sizes so DOES NOT SUPPORT MULTIPLE WINDOWS
  */
 public class MyPoint2D extends MyMatrix implements MyObject2D{
-	
+
 	public static final double MAXX = 1000, MAXY = 1000;
 	private static double displayWidth = 500, displayHeight = 500, scaleX=0.5, scaleY=0.5, offsetX=0, offsetY=0;
 	private Color color;
-	
+
 	public MyPoint2D(double x, double y){
 		this(x,y,Color.BLACK);
 	}
@@ -73,7 +73,7 @@ public class MyPoint2D extends MyMatrix implements MyObject2D{
 		MyPoint2D.displayHeight = displayHeight;
 		scaleX = displayWidth/MAXX;
 		scaleY = displayHeight/MAXY;
-		
+
 		// calculate the isotropic scaling factors
 		scaleX = Math.min(scaleX, scaleY);
 		scaleY=scaleX;
@@ -81,7 +81,7 @@ public class MyPoint2D extends MyMatrix implements MyObject2D{
 		offsetX = (displayWidth-MAXX*scaleX)/2;
 		offsetY= (displayHeight-MAXY*scaleY)/2;
 	}
-	
+
 	@Override
 	public Object clone(){
 		//copy the x and y (they are values) and effectively clone the Color object

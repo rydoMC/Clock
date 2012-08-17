@@ -16,9 +16,9 @@ import java.util.ArrayList;
  * and doesn't directly implement individual transformations
  */
 public class MyDrawing2D implements MyObject2D {
-	
+
 	private ArrayList<MyObject2D> objects = new ArrayList<MyObject2D>();
-	
+
 	/**
 	 * @param obj the MyDrawing2D object that is to be added to the drawing
 	 */
@@ -31,13 +31,13 @@ public class MyDrawing2D implements MyObject2D {
 		for (MyObject2D object : objects)
 			object.draw(g);
 	}
-	
+
 	@Override
 	public Object clone(){
 		// Create a new MyDrawing2D
 		// Run through the current ArrayList of objects and for each one:
 		//    add a clone of that object to the new drawing
-		
+
 		MyDrawing2D newDrawing = new MyDrawing2D();
 		for (MyObject2D oldPoint : objects)
 			newDrawing.add((MyObject2D)oldPoint.clone());

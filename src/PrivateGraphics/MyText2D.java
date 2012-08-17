@@ -8,7 +8,7 @@ public class MyText2D implements MyObject2D {
 	public String contents;
 	public MyPoint2D position;
 	private Font myFont = new Font("Comic Sans", Font.BOLD, 24);
-	
+
 	public MyText2D(String s, MyPoint2D p){
 		super();
 		contents = s;

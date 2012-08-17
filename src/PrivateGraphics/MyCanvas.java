@@ -19,11 +19,15 @@ import java.awt.event.MouseMotionListener;
  */
 public class MyCanvas extends Canvas implements MouseMotionListener, MouseListener, Runnable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 8047427907134629499L;
 	private Image bufferImage;
 	private MyDrawing2D drawing;
 	private MyRect2D square;
 	private MyTransformation2D rotateSquareAroundSelf;
-	
+
 	/**
 	 * Constructor does:
 	 * 	a) calls the standard Canvas constructor
@@ -35,35 +39,35 @@ public class MyCanvas extends Canvas implements MouseMotionListener, MouseListen
 	 */
 	public MyCanvas(){
 		super();
-		
+
 		addMouseMotionListener(this);
 		addMouseListener(this);
-		
+
 		drawing = new MyDrawing2D();
 		drawing.add(new MyRect2D(new MyPoint2D(0,0),new MyPoint2D(1000,1000),Color.lightGray));
-		
+
 		MyPoint2D pt = new MyPoint2D(500,500);
 		drawing.add(pt);
-		
+
 		MyLine2D line = new MyLine2D(new MyPoint2D(600,200), new MyPoint2D(800,400), Color.BLUE);
 		drawing.add(line);
-		
+
 		MyTransformation2D translate1 = new MyTransformation2D(); translate1.translate(-700, -300);
 		MyTransformation2D rotate = new MyTransformation2D(); rotate.rotateByDegreesAroundOrigin(10);
 		MyTransformation2D translate2 = new MyTransformation2D(); translate2.translate(700, 300);
-		
+
 		MyTransformation2D rotateAroundSelf = new MyTransformation2D();
 		rotateAroundSelf.transform(translate1);
 		rotateAroundSelf.transform(rotate);
 		rotateAroundSelf.transform(translate2);
-		
+
 		MyLine2D line2= (MyLine2D) line.clone();
 		for (int i=1; i<=18; i++){
 			line2.transform(rotateAroundSelf);
 			drawing.add(line2);
 			line2 = (MyLine2D) line2.clone();
 		}
-		
+
 		MyDrawing2D saltire = new MyDrawing2D();
 		saltire.add(new MyRect2D(new MyPoint2D(200,200), new MyPoint2D(500,400), Color.BLUE));
 		MyPolygon2D cross = new MyPolygon2D(Color.WHITE);
@@ -85,14 +89,14 @@ public class MyCanvas extends Canvas implements MouseMotionListener, MouseListen
 		cross2.addPoint(new MyPoint2D(480,200));
 		saltire.add(cross2);
 		drawing.add(saltire);
-		
+
 		square = new MyRect2D(new MyPoint2D(600,600), new MyPoint2D(800,800), Color.PINK);
 		drawing.add(square);
 
 		translate1 = new MyTransformation2D(); translate1.translate(-700, -700);
 		rotate = new MyTransformation2D(); rotate.rotateByDegreesAroundOrigin(2);
 		translate2 = new MyTransformation2D(); translate2.translate(700, 700);
-		
+
 		rotateSquareAroundSelf = new MyTransformation2D();
 		rotateSquareAroundSelf.transform(translate1);
 		rotateSquareAroundSelf.transform(rotate);

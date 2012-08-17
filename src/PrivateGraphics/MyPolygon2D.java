@@ -84,7 +84,7 @@ public class MyPolygon2D implements MyObject2D {
 		transform(t);
 		transform(sdeFlip);
 	}
-	
+
 	public void transform(MyTransformation2D transformation) {
 		for (MyPoint2D point : points)
 			point.transform(transformation);

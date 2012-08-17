@@ -7,12 +7,12 @@ import java.awt.Graphics;
 /**
  * @author Mark Dunlop
  * A 2D coloured line
-  * 
+ * 
  * This version is for the Matrix/Transformation approach so only implements transform(t)
  * and doesn't directly implement individual transformations
-*/
+ */
 public class MyLine2D implements MyObject2D {
-	
+
 	private MyPoint2D start, end;
 	private Color color;
 

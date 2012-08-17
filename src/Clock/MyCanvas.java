@@ -1,8 +1,5 @@
 package Clock;
-/**
- * @author RyanMcNulty
- * MyCanvas is a class which extends Canvas in order to become a paintable canvas for graphics to be drawn on.
- */
+
 import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Graphics;
@@ -18,48 +15,64 @@ import PrivateGraphics.MyRect2D;
 import PrivateGraphics.MyText2D;
 import PrivateGraphics.MyTransformation2D;
 
-public class MyCanvas extends Canvas implements MouseListener, Runnable {
+/**
+ * MyCanvas is a class which extends Canvas in order to become a paintable canvas for graphics to be drawn on.
+ *
+ * @author Ryan McNulty
+ * @project Graphics
+ * @package Clock
+ * @created Aug 17, 2012
+ */
+public class MyCanvas extends Canvas implements MouseListener, Runnable{
 	private static final long serialVersionUID = 7186653402129841530L;
+	
 	private MyDrawing2D drw;
-	private Hand bHand,smHand,scHand,stpHand, stpHandSm;
+	private Hand bHand,smHand,scHand;
 	private MiniDisplay mdL, mdR;
-	private MyRect2D backGround;
 	private MyText2D dateAndDay, timeStatus;
 	private Image bufferImage;
 	private long[] digits;
-	private Stopwatch stpwtch = new Stopwatch();
+	
+	// Stop watch related
+	private StopWatch stpwtch;
 	private Thread stpwtchThread;
 
+	
+	/**
+	 * Default Constructor
+	 */
 	public MyCanvas(){
+		super();
 		drw = new MyDrawing2D();
 		digits = new long[5]; 
+		
+		stpwtch = new StopWatch();
+		
 		addMouseListener(this);
+		
 		backgroundSetup();
-
 		clearHands();
 		setupIntervals();
 	}
 
+	
 	// Draws black rectangle to act as the background of the canvas
-	public void backgroundSetup(){
-		backGround = new MyRect2D(new MyPoint2D(0,0), new MyPoint2D(1000,1000), Color.black);
+	private void backgroundSetup(){
+		MyRect2D backGround = new MyRect2D(new MyPoint2D(0,0), new MyPoint2D(1000,1000), Color.black);
 		drw.add(backGround);
 	}
 
+	
 	// Reset all hands back to original colours and positions.
-	public void clearHands(){
-		bHand = new Hand(' ', Color.WHITE);
-		scHand = new Hand(' ', Color.WHITE);
-		smHand = new Hand('s', Color.WHITE);
-		clearStopwatchHands();
+	private void clearHands(){
+		bHand = new Hand(HandSize.BigHand, Color.WHITE);
+		scHand = new Hand(HandSize.BigHand, Color.WHITE);
+		smHand = new Hand(HandSize.SmallHand, Color.WHITE);
+		
+		stpwtch.clearHands();
 	}
 
-	// Resets particularly the stopwatch hands.
-	public void clearStopwatchHands(){
-		stpHand = new Hand('d', Color.RED);
-		stpHandSm = new Hand('f', Color.GREEN);
-	}
-
+	
 	public void paint(Graphics g){
 		bufferImage = createImage(getWidth(), getHeight());
 		MyPoint2D.setDisplaySize(getWidth(), getHeight());
@@ -67,12 +80,14 @@ public class MyCanvas extends Canvas implements MouseListener, Runnable {
 		if(g == null){
 			System.exit(1);
 		}
+		
 		drw.draw(bufferImage.getGraphics());
 		g.drawImage(bufferImage, 0, 0, null);
 	}
 
+	
 	// Processes the values in which are to be shown on the mini displays.
-	public void setMiniDisplayValues(){
+	private void setMiniDisplayValues(){
 		if(digits[0] > 12){
 			timeStatus = new MyText2D("PM", new MyPoint2D(200,480));
 		}
@@ -80,41 +95,40 @@ public class MyCanvas extends Canvas implements MouseListener, Runnable {
 			timeStatus = new MyText2D("AM", new MyPoint2D(200,480));
 		}
 
-		int i = (int)digits[4];
+		int i = (int) digits[4];
 		String[] days = {"Sun", "Mon","Tues","Wed","Thurs","Fri","Sat"};
 
 		dateAndDay = new MyText2D(days[i-1] + " " + digits[3], (new MyPoint2D(650,480)));
 	}
 
+	
 	// Arranges interval/mypolygon2d objects to allow arrangement of a dial.
-	public void setupIntervals(){
+	private void setupIntervals(){
 		MyPolygon2D nextInterval;
 		MyTransformation2D trn = new MyTransformation2D();
-		Interval baseInterval = new Interval();
+		Interval baseInterval = new Interval(Color.white, IntervalSize.Normal);
 
 
-		// Each interval is 6 degrees apart
-		for(int i = 0; i < 360; i=i+6){
+		// 60 intervals, each 6 degrees apart
+		for(int i = 0; i < 60; i++){
 			// if i is a value of a hour marking interval then mark as green.
-			if(i % 30 == 0){
-				nextInterval = new Interval(Color.GREEN);
-			}
-			else{
-				nextInterval = (MyPolygon2D) baseInterval.clone();
-			}
-			trn.rotateByDegreesAroundOrigin(i);
+			if(i % 5 == 0) nextInterval = new Interval(Color.GREEN, IntervalSize.Big);
+			else nextInterval = (MyPolygon2D) baseInterval.clone();
+			
+			trn.rotateByDegreesAroundOrigin(i*6);
 			nextInterval.rotateAroundAnchor(trn);
 			drw.add(nextInterval);
 		}
 	}
 
+	
 	// Arranges interval/mypolygon2d objects in order to represent the stopwatch dial
-	public void setupMiniIntervals(){
-		MyPolygon2D nextInterval = new Interval('d');
+	private void setupMiniIntervals(){
+		MyPolygon2D nextInterval = new Interval(Color.WHITE,IntervalSize.Mini);
 		MyTransformation2D trn = new MyTransformation2D();
 
 		// Each interval is 6 degrees apart
-		for(int i = 0; i < 360; i=i+6){
+		for(int i = 0; i < 60; i++){
 			nextInterval = (MyPolygon2D) nextInterval.clone();
 
 			trn.rotateByDegreesAroundOrigin(6);
@@ -123,9 +137,9 @@ public class MyCanvas extends Canvas implements MouseListener, Runnable {
 		}
 	}
 
+	
 	// Sets digits[] to hold values of time and rotates the hand objects approp.
-	public void setCurrentTime(){
-
+	private void setCurrentTime(){
 		Calendar cal = Calendar.getInstance();
 
 		digits[0] = (cal.get(Calendar.HOUR_OF_DAY));
@@ -137,8 +151,10 @@ public class MyCanvas extends Canvas implements MouseListener, Runnable {
 		int angle = 6;
 		MyTransformation2D trn = new MyTransformation2D();
 
+		// For big hand, small hand and seconds hand.
 		for(int i = 0; i < 3; i++){
 			int currentHand = (int) digits[i];
+			
 			if(i==0){
 				trn.rotateByDegreesAroundOrigin(currentHand * (angle*5));
 				smHand.rotateAroundAnchor(trn);
@@ -152,18 +168,11 @@ public class MyCanvas extends Canvas implements MouseListener, Runnable {
 				scHand.rotateAroundAnchor(trn);
 			}
 		}
-
-		int copyMin = (int) digits[1];
-		trn = new MyTransformation2D();
-		trn.rotateByDegreesAroundOrigin(angle);
-		while(copyMin - 12 >= 0){
-			smHand.rotateAroundAnchor(trn);
-			copyMin = copyMin - 12;
-		}
 	}
 
+	
 	// Intialises mini displays
-	public void setupMiniDisplays(){
+	private void setupMiniDisplays(){
 		mdL = new MiniDisplay();
 		mdR = new MiniDisplay();
 
@@ -172,6 +181,7 @@ public class MyCanvas extends Canvas implements MouseListener, Runnable {
 		mdR.transform(trn);
 	}
 
+	
 	public void run(){
 		boolean running = true,checked = true;
 		double secs,mins;
@@ -191,6 +201,7 @@ public class MyCanvas extends Canvas implements MouseListener, Runnable {
 		setupMiniIntervals();
 		setupMiniDisplays();
 		addDrawableObjects();
+		
 		stpwtchThread = new Thread(stpwtch);
 
 		try {
@@ -213,6 +224,7 @@ public class MyCanvas extends Canvas implements MouseListener, Runnable {
 					checked = true;
 				}
 				
+				// throws error here.
 				paint(getGraphics());
 				loopEndTime = System.nanoTime();
 
@@ -225,21 +237,21 @@ public class MyCanvas extends Canvas implements MouseListener, Runnable {
 		}
 	}
 
+	
 	// In this method, you add all the objects to draw to the drawing instance. Order is specific in order to make it seem like a real clock.
-	public void addDrawableObjects(){
+	private void addDrawableObjects(){
 		drw.add(mdL);
 		drw.add(mdR);
 		drw.add(dateAndDay);
 		drw.add(timeStatus);
-		drw.add(stpHandSm);
-		drw.add(stpHand);
 		drw.add(bHand);
 		drw.add(scHand);
 		drw.add(smHand);
+		drw.add(stpwtch);
 	}
 
 	// Mark all instances of intervals to be put onto the convas
-	public void changeStopwatchThreadState(){
+	private void changeStopwatchThreadState(){
 		if(!stpwtchThread.isAlive()){
 			stpwtchThread.start();
 		}	
@@ -248,57 +260,16 @@ public class MyCanvas extends Canvas implements MouseListener, Runnable {
 		}
 	}
 
+	
 	@Override
 	public void mouseClicked(MouseEvent arg0) {
+		System.out.println("mouse click");
 		stpwtch.changeRunStatus();	
 		changeStopwatchThreadState();
 	}
 
-	class Stopwatch implements Runnable{
-		private boolean runStopWatch = false;
-
-		public void run() {
-			long loopStartTime, loopEndTime, totalTime,lag = 0;
-			MyTransformation2D trnSec = new MyTransformation2D();
-			trnSec.rotateByDegreesAroundOrigin(6);
-			int secs = 0;
-			try {
-				while(runStopWatch){
-					loopStartTime = System.nanoTime();
-					stpHand.rotateAroundAnchorSmall(trnSec);
-					secs++;
-
-					if(secs==60){
-						stpHandSm.rotateAroundAnchorSmall(trnSec);
-						secs = 0;
-					}
-
-					paint(getGraphics());
-					loopEndTime = System.nanoTime();
-
-					Thread.sleep(Math.max((1000000000- (loopEndTime-loopStartTime) - lag)/1000000,0));
-					totalTime = System.nanoTime();
-					lag = totalTime - loopStartTime - 1000000000;
-				}
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
-
-		public void changeRunStatus(){
-			if(runStopWatch){
-				runStopWatch = false;
-			}
-			else{
-				runStopWatch = true;
-			}
-		}
-
-		public boolean getRunStatus(){
-			return runStopWatch;
-		}
-	}
-
+	
+	// Unused mouse methods
 	public void mouseEntered(MouseEvent arg0) {}
 	public void mouseExited(MouseEvent arg0) {}
 	public void mousePressed(MouseEvent arg0) {}
